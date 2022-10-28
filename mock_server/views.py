@@ -1,6 +1,13 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView, View
 from django.http import HttpResponse
+from django.contrib.auth.models import User
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
+
+from .serializers import UserSerializer
 
 # Create your views here.
 class Home(TemplateView):
@@ -15,14 +22,53 @@ class Logout(View):
 
 
 # api views
-from django.contrib.auth.models import User
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.generics import ListAPIView
-
-from .serializers import UserSerializer
-
 class ListUser(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+class MessageList(APIView):
+    data = {}
+    def get(self, request, *args, **kwargs):
+        target = request.query_params.get('target')
+        if target == 'sm':
+            self.data = {
+                'results' : [
+                    {
+                        'user' : 'sm',
+                        'body' : 'personal message',
+                    },
+                ]
+            }
+        else:
+            self.data = {
+                'results' : [
+                    {
+                        'user' : 'sm',
+                        'body' : 'hi "a" user',
+                    },
+                    {
+                        'user' : 'a',
+                        'body' : 'hi "sm" user',
+                    }
+                ]
+            }
+
+        return Response(self.data)
+
+    def post(self, request):
+        return Response({'details':'send message ok'})
+
+
+class MessageDetail(APIView):
+    def get(self, request, id):
+        date = {
+            'results' : [
+                {
+                    'user' : 'sm',
+                    'recipient' : 'a',
+                    'body' : 'personal message',
+                },
+            ]
+        }
+
+        return Response(date)
