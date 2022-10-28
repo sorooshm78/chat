@@ -8,4 +8,5 @@ urlpatterns = [
 
     # api urls
     path("api/v1/user/", views.ListUser.as_view(), name="list_user"),
+    
 ]
