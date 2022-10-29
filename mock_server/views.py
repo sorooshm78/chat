@@ -36,6 +36,7 @@ class MessageList(APIView):
                     {
                         'user' : 'sm',
                         'body' : 'personal message',
+                        'timestamp' : 1667056856222,
                     },
                 ]
             }
@@ -45,10 +46,12 @@ class MessageList(APIView):
                     {
                         'user' : 'sm',
                         'body' : 'hi "a" user',
+                        'timestamp' : 1807110465663,
                     },
                     {
                         'user' : 'a',
                         'body' : 'hi "sm" user',
+                        'timestamp' : 1807110465663,
                     }
                 ]
             }
