@@ -1,7 +1,6 @@
 from django.views.generic import TemplateView
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
 from django.db.models import Q
 
 from rest_framework.generics import ListCreateAPIView, ListAPIView
@@ -37,6 +36,11 @@ class ListCreateMessage(ListCreateAPIView):
         return Message.objects.filter(
             Q(sender=current_user) | Q(sender=target),
             Q(receiver=current_user) | Q(receiver=target)
+        )
+
+    def filter_queryset(self, queryset):
+        return queryset.order_by(
+            '-timestamp'
         )
 
     def list(self, request, *args, **kwargs):

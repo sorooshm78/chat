@@ -1,4 +1,5 @@
-from operator import imod
+from time import time
+
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
@@ -16,18 +17,18 @@ class MessageModelSerializer(serializers.ModelSerializer):
     recipient = serializers.CharField(source='receiver.username')
 
     def create(self, validated_data):
+        ModelClass = self.Meta.model
+
         sender = self.context['request'].user
         receiver = get_object_or_404(User, username=validated_data['receiver']['username'])
-    
-        print(f'{sender} -> {receiver}')
 
-        return Message.objects.create(
+        return ModelClass.objects.create(
             sender=sender,
             receiver=receiver,
             body=validated_data['body'], 
-            timestamp=125, 
+            timestamp=int(time()*1000), 
         )
-
+       
     class Meta:
         model = Message
         fields = [
