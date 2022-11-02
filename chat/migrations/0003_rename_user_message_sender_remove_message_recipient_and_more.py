@@ -9,22 +9,27 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('chat', '0002_alter_message_recipient'),
+        ("chat", "0002_alter_message_recipient"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='message',
-            old_name='user',
-            new_name='sender',
+            model_name="message",
+            old_name="user",
+            new_name="sender",
         ),
         migrations.RemoveField(
-            model_name='message',
-            name='recipient',
+            model_name="message",
+            name="recipient",
         ),
         migrations.AddField(
-            model_name='message',
-            name='receiver',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='receiver', to=settings.AUTH_USER_MODEL),
+            model_name="message",
+            name="receiver",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="receiver",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

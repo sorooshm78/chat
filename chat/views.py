@@ -14,13 +14,13 @@ from .authentication import SessionCsrfExemptAuthentication
 
 # Create your views here.
 class Home(TemplateView):
-    template_name = 'core/chat.html'
+    template_name = "core/chat.html"
 
 
 class ListUser(ListAPIView):
     serializer_class = UserModelSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
         current_user = self.request.user
         return User.objects.exclude(id=current_user.id)
@@ -33,20 +33,22 @@ class ListCreateMessage(ListCreateAPIView):
 
     def get_queryset(self):
         current_user = get_object_or_404(User, username=self.request.user)
-        target = get_object_or_404(User, username=self.request.query_params.get('target'))
+        target = get_object_or_404(
+            User, username=self.request.query_params.get("target")
+        )
 
         return Message.objects.filter(
             Q(user=current_user) | Q(user=target),
-            Q(recipient=current_user) | Q(recipient=target)
+            Q(recipient=current_user) | Q(recipient=target),
         )
 
     def filter_queryset(self, queryset):
-        return queryset.order_by(
-            '-timestamp'
-        )
+        return queryset.order_by("-timestamp")
 
     def list(self, request, *args, **kwargs):
         message_list = super().list(request, *args, **kwargs).data
-        return Response({
-            'results' : message_list,
-        })
+        return Response(
+            {
+                "results": message_list,
+            }
+        )
