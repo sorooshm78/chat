@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from .serializers import UserModelSerializer, MessageModelSerializer
 from .models import Message
+from .authentication import SessionCsrfExemptAuthentication
 
 
 # Create your views here.
@@ -28,6 +29,7 @@ class ListUser(ListAPIView):
 class ListCreateMessage(ListCreateAPIView):
     serializer_class = MessageModelSerializer
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionCsrfExemptAuthentication]
 
     def get_queryset(self):
         current_user = get_object_or_404(User, username=self.request.user)
