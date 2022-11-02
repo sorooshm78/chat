@@ -18,7 +18,6 @@ class MessageModelSerializer(serializers.ModelSerializer):
     recipient = serializers.SlugRelatedField(slug_field='username', queryset=User.objects.all())
 
     def create(self, validated_data):
-        print(validated_data)
         ModelClass = self.Meta.model
         sender = self.context['request'].user
         receiver = get_object_or_404(User, username=validated_data['recipient'])
