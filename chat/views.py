@@ -34,8 +34,8 @@ class ListCreateMessage(ListCreateAPIView):
         target = get_object_or_404(User, username=self.request.query_params.get('target'))
 
         return Message.objects.filter(
-            Q(sender=current_user) | Q(sender=target),
-            Q(receiver=current_user) | Q(receiver=target)
+            Q(user=current_user) | Q(user=target),
+            Q(recipient=current_user) | Q(recipient=target)
         )
 
     def filter_queryset(self, queryset):
