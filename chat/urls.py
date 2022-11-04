@@ -9,7 +9,5 @@ urlpatterns = [
     path(
         "api/v1/message/", views.ListCreateMessage.as_view(), name="list_create_message"
     ),
-    path(
-        "api/v1/message/<pk>/", views.DetailMessage.as_view(), name="detail_message"
-    ),
+    path("api/v1/message/<pk>/", views.DetailMessage.as_view(), name="detail_message"),
 ]

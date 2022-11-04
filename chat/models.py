@@ -27,9 +27,5 @@ class Message(models.Model):
 def notifies_users(sender, instance, **kwargs):
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
-        'test-session',
-        {
-            'type': 'chat_message',
-            'message': instance.id
-        }
-    ) 
+        "test-session", {"type": "chat_message", "message": instance.id}
+    )

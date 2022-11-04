@@ -53,6 +53,7 @@ class ListCreateMessage(ListCreateAPIView):
             }
         )
 
+
 class DetailMessage(RetrieveAPIView):
     serializer_class = MessageModelSerializer
     permission_classes = [IsAuthenticated]
@@ -60,7 +61,5 @@ class DetailMessage(RetrieveAPIView):
 
     def get_queryset(self):
         current_user = get_object_or_404(User, username=self.request.user)
-        
-        return Message.objects.filter(
-            Q(user=current_user) | Q(recipient=current_user)
-        )
+
+        return Message.objects.filter(Q(user=current_user) | Q(recipient=current_user))

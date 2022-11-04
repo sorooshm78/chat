@@ -31,7 +31,7 @@ class MessageModelSerializer(serializers.ModelSerializer):
             body=validated_data["body"],
             timestamp=int(time() * 1000),
         )
-        
+
     class Meta:
         model = Message
         fields = [
