@@ -93,7 +93,7 @@ $(document).ready(function () {
     var socket = new WebSocket(
         'ws://' + window.location.host +
         '/ws?session_key=${sessionKey}')
-
+    
     chatInput.keypress(function (e) {
         if (e.keyCode == 13)
             chatButton.click();

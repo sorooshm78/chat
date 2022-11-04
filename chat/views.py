@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
-from rest_framework.generics import ListCreateAPIView, ListAPIView
+from rest_framework.generics import ListCreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -51,4 +51,16 @@ class ListCreateMessage(ListCreateAPIView):
             {
                 "results": message_list,
             }
+        )
+
+class DetailMessage(RetrieveAPIView):
+    serializer_class = MessageModelSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionCsrfExemptAuthentication]
+
+    def get_queryset(self):
+        current_user = get_object_or_404(User, username=self.request.user)
+        
+        return Message.objects.filter(
+            Q(user=current_user) | Q(recipient=current_user)
         )
