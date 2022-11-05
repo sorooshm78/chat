@@ -13,6 +13,8 @@ from .authentication import SessionCsrfExemptAuthentication
 
 
 # Create your views here.
+MESSAGES_TO_LOAD = 15
+
 class Home(TemplateView):
     template_name = "core/chat.html"
 
@@ -43,7 +45,7 @@ class ListCreateMessage(ListCreateAPIView):
         )
 
     def filter_queryset(self, queryset):
-        return queryset.order_by("-timestamp")
+        return queryset.order_by("-timestamp")[:MESSAGES_TO_LOAD]
 
     def list(self, request, *args, **kwargs):
         message_list = super().list(request, *args, **kwargs).data
