@@ -18,7 +18,7 @@ class Message(models.Model):
         User, on_delete=models.SET_NULL, null=True, related_name="receiver"
     )
     body = models.CharField(max_length=250)
-    timestamp = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
         return f"{self.user} -> {self.recipient}"

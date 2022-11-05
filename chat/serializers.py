@@ -1,5 +1,3 @@
-from time import time
-
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
@@ -29,7 +27,6 @@ class MessageModelSerializer(serializers.ModelSerializer):
             user=sender,
             recipient=receiver,
             body=validated_data["body"],
-            timestamp=int(time() * 1000),
         )
 
     class Meta:
