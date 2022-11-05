@@ -4,7 +4,6 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
 
 from channels.layers import get_channel_layer
 
