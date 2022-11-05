@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
 from channels.layers import get_channel_layer
 
@@ -25,7 +26,16 @@ class Message(models.Model):
 
 @receiver(post_save, sender=Message)
 def notifies_users(sender, instance, **kwargs):
+    user = f'user_{instance.user.id}'
+    recipient = f'user_{instance.recipient.id}'
+    
+    # send message to sender
+    send_message(user, instance.id)
+    # send message to receiver
+    send_message(recipient, instance.id)
+
+def send_message(user, message_id):
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
-        "test-session", {"type": "chat_message", "message": instance.id}
+        user, {"type": "chat_message", "message": message_id}
     )
