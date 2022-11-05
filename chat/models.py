@@ -25,13 +25,14 @@ class Message(models.Model):
 
 @receiver(post_save, sender=Message)
 def notifies_users(sender, instance, **kwargs):
-    user = f'user_{instance.user.id}'
-    recipient = f'user_{instance.recipient.id}'
-    
+    user = f"user_{instance.user.id}"
+    recipient = f"user_{instance.recipient.id}"
+
     # send message to sender
     send_message(user, instance.id)
     # send message to receiver
     send_message(recipient, instance.id)
+
 
 def send_message(user, message_id):
     channel_layer = get_channel_layer()

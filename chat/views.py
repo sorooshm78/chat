@@ -15,6 +15,7 @@ from .authentication import SessionCsrfExemptAuthentication
 # Create your views here.
 MESSAGES_TO_LOAD = 15
 
+
 class Home(TemplateView):
     template_name = "core/chat.html"
 
