@@ -29,14 +29,14 @@ class TestModelMessage(TestCase):
 
     def test_create_message_without_sender(self):
         with self.assertRaises(AttributeError):
-            message = Message.objects.create(
+            Message.objects.create(
                 recipient=self.receiver,
                 body="test_create_message_without_sender",
             )
 
     def test_create_message_without_receiver(self):
         with self.assertRaises(AttributeError):
-            message = Message.objects.create(
+            Message.objects.create(
                 user=self.sender,
                 body="test_create_message_without_receiver",
             )
