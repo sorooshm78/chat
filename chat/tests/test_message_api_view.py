@@ -4,10 +4,9 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 
 from rest_framework.test import APIClient
-from rest_framework.response import Response
 from rest_framework import status
 
-from ..serializers import UserModelSerializer, MessageModelSerializer
+from ..serializers import MessageModelSerializer
 from ..models import Message
 
 
