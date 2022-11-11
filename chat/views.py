@@ -4,17 +4,35 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from rest_framework.generics import ListCreateAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.authentication import SessionAuthentication
 
+from core import settings
 from .serializers import UserModelSerializer, MessageModelSerializer
 from .models import Message
-from .authentication import SessionCsrfExemptAuthentication
 
 
 # Create your views here.
-MESSAGES_TO_LOAD = 15
+class SessionCsrfExemptAuthentication(SessionAuthentication):
+    """
+    SessionAuthentication scheme used by DRF. DRF's SessionAuthentication uses
+    Django's session framework for authentication which requires CSRF to be
+    checked. In this case we are going to disable CSRF tokens for the API.
+    """
+
+    def enforce_csrf(self, request):
+        return
+
+
+class MessagePagination(PageNumberPagination):
+    """
+    Limit message prefetch to one page.
+    """
+
+    page_size = settings.MESSAGES_TO_LOAD
 
 
 class Home(LoginRequiredMixin, TemplateView):
@@ -30,40 +48,30 @@ class ListUser(ListAPIView):
         return User.objects.exclude(id=current_user.id)
 
 
-class ListCreateMessage(ListCreateAPIView):
+class MessageModelViewSet(ModelViewSet):
     serializer_class = MessageModelSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionCsrfExemptAuthentication]
+    queryset = Message.objects.all()
+    allowed_methods = ["GET", "POST"]
+    pagination_class = MessagePagination
 
-    def get_queryset(self):
+    def list(self, request, *args, **kwargs):
         current_user = get_object_or_404(User, username=self.request.user)
         target = get_object_or_404(
             User, username=self.request.query_params.get("target")
         )
-
-        return Message.objects.filter(
+        self.queryset = self.queryset.filter(
             Q(user=current_user) | Q(user=target),
             Q(recipient=current_user) | Q(recipient=target),
         )
 
-    def filter_queryset(self, queryset):
-        return queryset.order_by("-timestamp")[:MESSAGES_TO_LOAD]
+        return super().list(request, *args, **kwargs)
 
-    def list(self, request, *args, **kwargs):
-        message_list = super().list(request, *args, **kwargs).data
-        return Response(
-            {
-                "results": message_list,
-            }
+    def retrieve(self, request, *args, **kwargs):
+        current_user = get_object_or_404(User, username=self.request.user)
+        self.queryset = self.queryset.filter(
+            Q(user=current_user) | Q(recipient=current_user), Q(pk=kwargs["pk"])
         )
 
-
-class DetailMessage(RetrieveAPIView):
-    serializer_class = MessageModelSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [SessionCsrfExemptAuthentication]
-
-    def get_queryset(self):
-        current_user = get_object_or_404(User, username=self.request.user)
-
-        return Message.objects.filter(Q(user=current_user) | Q(recipient=current_user))
+        return super().retrieve(request, *args, **kwargs)
