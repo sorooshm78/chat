@@ -2,6 +2,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from rest_framework.generics import ListCreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -16,7 +17,7 @@ from .authentication import SessionCsrfExemptAuthentication
 MESSAGES_TO_LOAD = 15
 
 
-class Home(TemplateView):
+class Home(LoginRequiredMixin, TemplateView):
     template_name = "core/chat.html"
 
 
