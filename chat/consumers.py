@@ -1,37 +1,27 @@
 import json
 
-from asgiref.sync import async_to_sync
-from channels.generic.websocket import WebsocketConsumer
-
-from django.contrib.sessions.models import Session
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 
-class ChatConsumer(WebsocketConsumer):
-    def get_user_id_from_sesstion(self, session_key):
-        session = Session.objects.get(session_key=session_key)
-        session_data = session.get_decoded()
-        user_id = session_data.get("_auth_user_id")
-        return str(user_id)
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        user_id = self.scope["user"].id
+        self.group_name = str(user_id)
 
-    def connect(self):
-        session_key = str(self.scope["query_string"]).split("=")[1][:-1]
-        user_id = self.get_user_id_from_sesstion(session_key)
-        self.group_name = user_id
-
-        async_to_sync(self.channel_layer.group_add)(
+        await self.channel_layer.group_add(
             self.group_name,
             self.channel_name,
         )
 
-        self.accept()
+        await self.accept()
 
-    def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
             self.group_name,
             self.channel_name,
         )
 
-    def chat_message(self, event):
+    async def chat_message(self, event):
         message = event["message"]
 
-        self.send(text_data=json.dumps({"type": "chat", "message": message}))
+        await self.send(text_data=json.dumps({"type": "chat", "message": message}))
