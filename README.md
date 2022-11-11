@@ -36,6 +36,11 @@ Project it self has the user creation form but still in order to use the admin y
 python manage.py createsuperuser
 ```
 
+Run tests
+```bash
+python manage.py test
+```
+
 And lastly let's make the App run. We just need to start the server now and then we can start using our simple todo App. Start the server by following command
 
 ```bash
