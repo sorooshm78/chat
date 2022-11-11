@@ -22,6 +22,9 @@ class Message(models.Model):
     def __str__(self) -> str:
         return f"{self.user} -> {self.recipient}"
 
+    class Meta:
+        ordering = ("-timestamp",)
+
 
 @receiver(post_save, sender=Message)
 def notifies_users(sender, instance, **kwargs):
