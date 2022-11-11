@@ -25,17 +25,13 @@ class Message(models.Model):
 
 @receiver(post_save, sender=Message)
 def notifies_users(sender, instance, **kwargs):
-    user = f"user_{instance.user.id}"
-    recipient = f"user_{instance.recipient.id}"
+    user_id = str(instance.user.id)
+    recipient_id = str(instance.recipient.id)
 
-    # send message to sender
-    send_message(user, instance.id)
-    # send message to receiver
-    send_message(recipient, instance.id)
+    notification = {"type": "chat_message", "message": f"{instance.id}"}
 
-
-def send_message(user, message_id):
     channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        user, {"type": "chat_message", "message": message_id}
-    )
+    # send message to sender
+    async_to_sync(channel_layer.group_send)(user_id, notification)
+    # send message to receiver
+    async_to_sync(channel_layer.group_send)(recipient_id, notification)
