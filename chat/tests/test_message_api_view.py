@@ -22,33 +22,26 @@ class TestMessageApiView(TestCase):
             body="test message",
         )
 
-        self.list_create_url = reverse("list_create_message")
-        self.detail_url = reverse("detail_message", kwargs={"pk": self.message.id})
+        self.list_url = reverse("message-api-list")
+        self.detail_url = reverse("message-api-detail", kwargs={"pk": self.message.id})
 
     # List Message (GET)
     def test_get_list_message_200_status(self):
         # get API response
         self.client.force_login(self.sender)
-        response = self.client.get(
-            f"{self.list_create_url}?target={self.receiver.username}"
-        )
+        response = self.client.get(f"{self.list_url}?target={self.receiver.username}")
         # get data from db
         messages = Message.objects.filter(
             Q(user=self.sender) | Q(user=self.receiver),
             Q(recipient=self.sender) | Q(recipient=self.receiver),
         )
         serializer = MessageModelSerializer(messages, many=True)
-        db_data = {
-            "results": serializer.data,
-        }
 
-        self.assertEqual(response.data, db_data)
+        self.assertEqual(response.data["results"], serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_list_message_without_authentication_403_status(self):
-        response = self.client.get(
-            f"{self.list_create_url}?target={self.receiver.username}"
-        )
+        response = self.client.get(f"{self.list_url}?target={self.receiver.username}")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # Create Message (POST)
@@ -58,7 +51,7 @@ class TestMessageApiView(TestCase):
             "body": "test_post_message_201_status",
         }
         self.client.force_login(self.sender)
-        response = self.client.post(self.list_create_url, data=data)
+        response = self.client.post(self.list_url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -68,7 +61,7 @@ class TestMessageApiView(TestCase):
             "body": "",
         }
         self.client.force_login(self.sender)
-        response = self.client.post(self.list_create_url, data=data)
+        response = self.client.post(self.list_url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -77,12 +70,12 @@ class TestMessageApiView(TestCase):
             "body": "test_post_message_by_empty_recipient_400_status",
         }
         self.client.force_login(self.sender)
-        response = self.client.post(self.list_create_url, data=data)
+        response = self.client.post(self.list_url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_post_list_message_without_authentication_403_status(self):
-        response = self.client.get(self.list_create_url)
+        response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # Detail Message (GET)
@@ -99,3 +92,24 @@ class TestMessageApiView(TestCase):
     def test_detail_message_without_authentication_403_status(self):
         response = self.client.get(self.detail_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # Send and Receive message
+    def test_send_and_receive_message(self):
+        # send message
+        self.client.force_login(self.sender)
+        data = {
+            "recipient": self.receiver.username,
+            "body": "test_send_and_receive_message",
+        }
+        response = self.client.post(self.list_url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.client.logout()
+
+        # receive message
+        self.client.force_login(self.receiver)
+        url = reverse("message-api-detail", kwargs={"pk": 2})
+        response = self.client.get(url)
+        self.client.logout()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["body"], "test_send_and_receive_message")
