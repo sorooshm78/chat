@@ -1,0 +1,17 @@
+[run]
+source = .
+branch = True
+cover_pylib = False
+
+omit =
+    __init__.py
+    /usr/*
+    core/*       
+    */migrations/* 
+    */tests.py     
+
+
+[report]
+exclude_lines =
+    def __str__    
+    def __repr__  
